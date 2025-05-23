@@ -1,0 +1,138 @@
+import requests
+from bs4 import BeautifulSoup
+import csv
+from datetime import datetime
+
+def scrape_shotkickers():
+    url = "https://www.shotkickers.com.au/whats-on"
+    response = requests.get(url)
+    soup = BeautifulSoup(response.text, "html.parser")
+    gigs = []
+
+    for event in soup.select(".elementor-widget-container"):
+        try:
+            artist = event.select_one("h2").get_text(strip=True)
+            date = event.select_one("p").get_text(strip=True)
+            link = url
+            gigs.append({
+                "artist": artist,
+                "date": date,
+                "venue": "Shotkickers",
+                "link": link,
+                "scraped_at": datetime.utcnow().isoformat()
+            })
+        except:
+            continue
+
+    return gigs
+
+def scrape_303_bar():
+    url = "https://www.openstudio.net.au/live-music.html"
+    response = requests.get(url)
+    soup = BeautifulSoup(response.text, "html.parser")
+    gigs = []
+
+    for event in soup.select(".blog-post"):
+        try:
+            artist = event.select_one("h3").get_text(strip=True)
+            date = event.select_one("p").get_text(strip=True)
+            link = url
+            gigs.append({
+                "artist": artist,
+                "date": date,
+                "venue": "303 Bar",
+                "link": link,
+                "scraped_at": datetime.utcnow().isoformat()
+            })
+        except:
+            continue
+
+    return gigs
+
+def scrape_lulie_tavern():
+    url = "https://lulietavern.com/gigs"
+    response = requests.get(url)
+    soup = BeautifulSoup(response.text, "html.parser")
+    gigs = []
+
+    for event in soup.select(".event"):
+        try:
+            artist = event.select_one(".title").get_text(strip=True)
+            date = event.select_one(".date").get_text(strip=True)
+            link = url
+            gigs.append({
+                "artist": artist,
+                "date": date,
+                "venue": "Lulie Tavern",
+                "link": link,
+                "scraped_at": datetime.utcnow().isoformat()
+            })
+        except:
+            continue
+
+    return gigs
+
+def scrape_brunswick_ballroom():
+    url = "https://brunswickballroom.com.au/shows"
+    response = requests.get(url)
+    soup = BeautifulSoup(response.text, "html.parser")
+    gigs = []
+
+    for event in soup.select(".event-listing"):
+        try:
+            artist = event.select_one(".event-title").get_text(strip=True)
+            date = event.select_one(".event-date").get_text(strip=True)
+            link = url
+            gigs.append({
+                "artist": artist,
+                "date": date,
+                "venue": "Brunswick Ballroom",
+                "link": link,
+                "scraped_at": datetime.utcnow().isoformat()
+            })
+        except:
+            continue
+
+    return gigs
+
+def scrape_wesley_anne():
+    url = "https://wesleyanne.com.au/whats-on"
+    response = requests.get(url)
+    soup = BeautifulSoup(response.text, "html.parser")
+    gigs = []
+
+    for event in soup.select(".whats-on-listing"):
+        try:
+            artist = event.select_one(".artist-name").get_text(strip=True)
+            date = event.select_one(".date").get_text(strip=True)
+            link = url
+            gigs.append({
+                "artist": artist,
+                "date": date,
+                "venue": "Wesley Anne",
+                "link": link,
+                "scraped_at": datetime.utcnow().isoformat()
+            })
+        except:
+            continue
+
+    return gigs
+
+def save_to_csv(gigs, filename="gigs.csv"):
+    if not gigs:
+        return
+    keys = gigs[0].keys()
+    with open(filename, "w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=keys)
+        writer.writeheader()
+        writer.writerows(gigs)
+
+if __name__ == "__main__":
+    all_gigs = []
+    all_gigs.extend(scrape_shotkickers())
+    all_gigs.extend(scrape_303_bar())
+    all_gigs.extend(scrape_lulie_tavern())
+    all_gigs.extend(scrape_brunswick_ballroom())
+    all_gigs.extend(scrape_wesley_anne())
+    save_to_csv(all_gigs)
+    print(f"Saved {len(all_gigs)} gigs to gigs.csv")
